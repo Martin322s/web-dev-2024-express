@@ -1,10 +1,17 @@
 import { Router } from 'express';
+import { universities } from '../university/university.route';
 
 const userRouter = Router();
 
-let users = [
-  { id: 1, name: 'John Doe', email: 'john@example.com' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+let users: { 
+  id: number; 
+  name: string; 
+  email: string; 
+  university: { id: number; name: string } | {}; 
+  subjects: string[];
+}[] = [
+  { id: 1, name: 'John Doe', email: 'john@example.com', university: { id: -1, name: '' }, subjects: [] },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', university: {}, subjects: [] },
 ];
 
 userRouter.get('/', (req, res) => {
@@ -22,13 +29,36 @@ userRouter.get('/:id', (req, res) => {
 });
 
 userRouter.post('/', (req, res) => {
+  const universityId = req.body.universityId;
+  const university = universities.find(x => x.id === universityId);
   const newUser = {
     id: users.length + 1,
     name: req.body.name,
     email: req.body.email,
+    university: university ? university : {},
+    subjects: req.body.subjects || []
   };
+
   users.push(newUser);
   res.status(201).json(newUser);
+});
+
+userRouter.post('/subject', (req, res) => {
+  const userId = parseInt(req.body.userId);
+  const subject = req.body.subject;
+  const userIndex = users.findIndex((u) => u.id === userId);
+
+  if (userIndex !== -1) {
+    const user = users[userIndex];
+    // Safely add the new subject by modifying the existing array
+    user.subjects = [...user.subjects, subject];
+
+    // Update the user in the array
+    users.splice(userIndex, 1, user);
+    res.json(user);
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
 });
 
 // PUT to update an existing user
@@ -40,6 +70,8 @@ userRouter.put('/:id', (req, res) => {
       id: userId,
       name: req.body.name,
       email: req.body.email,
+      university: req.body.university || {},
+      subjects: req.body.subjects || []
     };
     res.json(users[userIndex]);
   } else {
@@ -54,6 +86,23 @@ userRouter.delete('/:id', (req, res) => {
   if (userIndex !== -1) {
     const deletedUser = users.splice(userIndex, 1);
     res.json(deletedUser[0]);
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+userRouter.patch('/', (req, res) => {
+  const userId = parseInt(req.body.userId);
+  let user = users.find(x => x.id === userId);
+  let userIndex = users.findIndex(x => x.id === userId);
+
+  const universityId = parseInt(req.body.universityId);
+  let university = universities.find(x => x.id === universityId);
+
+  if (user && university) {
+    const newUser = { ...user, university: university };
+    users.splice(userIndex, 1, newUser);
+    res.json(newUser);
   } else {
     res.status(404).json({ message: 'User not found' });
   }
