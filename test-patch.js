@@ -3,9 +3,9 @@ const axios = require('axios');
 /** Change URL and body according to implementation. */
 async function testPatchRequest() {
   try {
-    const response = await axios.patch('http://localhost:3000/user', {
+    const response = await axios.patch('http://localhost:3000/user/', {
       userId: 1,
-      universityId: 3
+      universityId: 4
     });
     console.log('Response data:', response.data);
   } catch (error) {

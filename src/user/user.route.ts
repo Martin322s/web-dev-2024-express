@@ -11,7 +11,7 @@ let users: {
   subjects: string[];
 }[] = [
   { id: 1, name: 'John Doe', email: 'john@example.com', university: { id: -1, name: '' }, subjects: [] },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', university: {}, subjects: [] },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', university: { id: -1, name: '' }, subjects: [] },
 ];
 
 userRouter.get('/', (req, res) => {
@@ -43,17 +43,16 @@ userRouter.post('/', (req, res) => {
   res.status(201).json(newUser);
 });
 
-userRouter.post('/subject', (req, res) => {
-  const userId = parseInt(req.body.userId);
+userRouter.patch('/subject/:id', (req, res) => {
+  const userId = parseInt(req.params.id);
   const subject = req.body.subject;
   const userIndex = users.findIndex((u) => u.id === userId);
 
   if (userIndex !== -1) {
     const user = users[userIndex];
-    // Safely add the new subject by modifying the existing array
+
     user.subjects = [...user.subjects, subject];
 
-    // Update the user in the array
     users.splice(userIndex, 1, user);
     res.json(user);
   } else {
