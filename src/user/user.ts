@@ -1,5 +1,8 @@
-import { DataTypes, Model, Sequelize, Optional, HasOneSetAssociationMixin, HasOneGetAssociationMixin } from 'sequelize';
+import { DataTypes, Model, Sequelize, Optional, HasOneSetAssociationMixin, HasOneGetAssociationMixin, BelongsToManyAddAssociationMixin,
+  BelongsToManySetAssociationsMixin,
+  BelongsToManyGetAssociationsMixin } from 'sequelize';
 import { University } from '../university/university';
+import { Subject } from '../subjects/subject';
 
 interface UserAttributes {
   id: number;
@@ -17,6 +20,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public email!: string;
   declare setUniversity: HasOneSetAssociationMixin<University, number>;
   declare getUniversity: HasOneGetAssociationMixin<University>;
+
+  declare addSubject: BelongsToManyAddAssociationMixin<Subject, number>;
+  declare setSubjects: BelongsToManySetAssociationsMixin<Subject, number>;
+
 }
 
 export const UserModel = (sequelize: Sequelize) => {
